@@ -13,17 +13,27 @@ mode = st.radio(
     horizontal=True
 )
 
-# ---------- PDF VIEW (FIXED) ----------
+# ---------- PDF VIEW (FINAL FIX) ----------
 def display_pdf(file_path, page_num):
     try:
         with open(file_path, "rb") as f:
             pdf_bytes = f.read()
-            base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
+
+        # ✅ ALWAYS WORKING BUTTON
+        st.download_button(
+            label="📥 Open / Download PDF",
+            data=pdf_bytes,
+            file_name=os.path.basename(file_path),
+            mime="application/pdf"
+        )
+
+        # ✅ TRY TO DISPLAY (may fail sometimes on cloud)
+        base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
 
         pdf_display = f"""
         <iframe 
         src="data:application/pdf;base64,{base64_pdf}#page={page_num}" 
-        width="100%" height="800px" type="application/pdf">
+        width="100%" height="800px">
         </iframe>
         """
 
@@ -47,11 +57,9 @@ if mode == "🔍 Smart Search":
 
     st.markdown("<h1 style='text-align:center;'>📘 IRC Code Search</h1>", unsafe_allow_html=True)
 
-    # ---------- AUTO DETECT IRC CODES ----------
     pdf_files = os.listdir("pdfs")
 
     available_codes = []
-
     for file in pdf_files:
         match = re.search(r'\d{2,3}', file)
         if match:
@@ -77,7 +85,6 @@ if mode == "🔍 Smart Search":
         for file in os.listdir(folder):
             if file.endswith(".pdf"):
 
-                # Apply IRC filter
                 if irc_filter != "All":
                     match = re.search(r'\d{2,3}', file)
                     if not match or match.group() != irc_filter:
