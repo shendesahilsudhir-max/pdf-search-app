@@ -13,16 +13,24 @@ mode = st.radio(
     horizontal=True
 )
 
-# ---------- PDF VIEW ----------
+# ---------- PDF VIEW (FIXED) ----------
 def display_pdf(file_path, page_num):
-    with open(file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+    try:
+        with open(file_path, "rb") as f:
+            pdf_bytes = f.read()
+            base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
 
-    pdf_display = f"""
-    <iframe src="data:application/pdf;base64,{base64_pdf}#page={page_num}" 
-    width="100%" height="800px"></iframe>
-    """
-    st.markdown(pdf_display, unsafe_allow_html=True)
+        pdf_display = f"""
+        <iframe 
+        src="data:application/pdf;base64,{base64_pdf}#page={page_num}" 
+        width="100%" height="800px" type="application/pdf">
+        </iframe>
+        """
+
+        st.markdown(pdf_display, unsafe_allow_html=True)
+
+    except Exception as e:
+        st.error(f"Error loading PDF: {e}")
 
 # ---------- HIGHLIGHT FUNCTION ----------
 def highlight_text(text, keyword):
@@ -45,7 +53,7 @@ if mode == "🔍 Smart Search":
     available_codes = []
 
     for file in pdf_files:
-        match = re.search(r'\d{2,3}', file)  # auto-detect numbers
+        match = re.search(r'\d{2,3}', file)
         if match:
             available_codes.append(match.group())
 
